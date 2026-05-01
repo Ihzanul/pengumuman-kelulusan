@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengumuman Kelulusan</title>
+  <link href="./src/style.css" rel="stylesheet">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body class="font-sans min-h-screen bg-slate-900 flex items-center justify-center p-4 selection:bg-indigo-500 selection:text-white">
+
+  <!-- Background decorative elements -->
+  <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+    <div class="absolute -top-[30%] -left-[10%] w-[70%] h-[70%] rounded-full bg-indigo-900/20 blur-3xl"></div>
+    <div class="absolute -bottom-[30%] -right-[10%] w-[70%] h-[70%] rounded-full bg-sky-900/20 blur-3xl"></div>
+  </div>
+
+  <main class="relative z-10 w-full max-w-md perspective-1000">
+    
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2 tracking-tight">Pengumuman <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-sky-400">Kelulusan</span></h1>
+      <p class="text-slate-400 text-sm md:text-base">Tahun Ajaran 2025/2026</p>
+      
+      <!-- Countdown -->
+      <div id="countdown-container" class="mt-5 flex justify-center gap-6 text-white hidden">
+        <div class="flex flex-col items-center"><span id="cd-days" class="text-2xl md:text-3xl font-mono font-bold text-indigo-400">00</span><span class="text-xs text-slate-400 uppercase tracking-widest mt-1">Hari</span></div>
+        <div class="flex flex-col items-center"><span id="cd-hours" class="text-2xl md:text-3xl font-mono font-bold text-sky-400">00</span><span class="text-xs text-slate-400 uppercase tracking-widest mt-1">Jam</span></div>
+        <div class="flex flex-col items-center"><span id="cd-mins" class="text-2xl md:text-3xl font-mono font-bold text-indigo-400">00</span><span class="text-xs text-slate-400 uppercase tracking-widest mt-1">Menit</span></div>
+        <div class="flex flex-col items-center"><span id="cd-secs" class="text-2xl md:text-3xl font-mono font-bold text-sky-400">00</span><span class="text-xs text-slate-400 uppercase tracking-widest mt-1">Detik</span></div>
+      </div>
+    </div>
+
+    <!-- The 3D Card Container -->
+    <div id="card" class="relative w-full h-[450px] md:h-[500px] cursor-default">
+      <div id="card-inner" class="absolute w-full h-full transition-transform duration-1000 transform-style-3d shadow-2xl rounded-2xl">
+        
+        <!-- FRONT FACE (Input Form) -->
+        <div class="card-face absolute w-full h-full rounded-2xl bg-slate-800/80 backdrop-blur-xl border border-slate-700 p-8 flex flex-col justify-center items-center text-center">
+          
+          <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-sky-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/30">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          </div>
+          
+          <h2 class="text-xl font-bold text-white mb-2">Cek Status Anda</h2>
+          <p class="text-slate-400 text-sm mb-8">Masukkan Nomor Induk Siswa Nasional (NISN) Anda untuk melihat hasil kelulusan.</p>
+          
+          <form id="check-form" class="w-full flex flex-col gap-4">
+            <div class="relative">
+              <input 
+                type="text" 
+                id="nisn-input" 
+                required 
+                placeholder="Contoh: 0012345678" 
+                class="w-full bg-slate-900/50 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                autocomplete="off"
+              >
+            </div>
+            
+            <button 
+              type="submit" 
+              id="submit-btn" 
+              class="w-full bg-gradient-to-r from-indigo-600 to-sky-500 hover:from-indigo-500 hover:to-sky-400 text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-indigo-500/25 transform transition-all active:scale-95 flex items-center justify-center"
+            >
+              <span>Buka Nasibku</span>
+            </button>
+            <div id="error-message" class="text-red-400 text-sm mt-2 hidden opacity-0 transition-opacity"></div>
+          </form>
+
+        </div>
+
+        <!-- BACK FACE (Result) -->
+        <div class="card-face card-back absolute w-full h-full rounded-2xl bg-white p-8 flex flex-col justify-center items-center text-center overflow-hidden">
+          
+          <!-- Success/Fail indicator background elements -->
+          <div id="result-bg" class="absolute inset-0 opacity-10 pointer-events-none transition-colors duration-500"></div>
+
+          <div class="relative z-10 w-full flex flex-col items-center">
+            <div class="w-32 h-32 rounded-full border-4 border-white shadow-xl overflow-hidden mb-4 bg-slate-100">
+              <img id="student-photo" src="/dummy-student.png" alt="Foto Siswa" class="w-full h-full object-cover">
+            </div>
+            
+            <h2 id="student-name" class="text-2xl font-extrabold text-slate-800 mb-1">Nama Siswa</h2>
+            <p id="student-nisn" class="text-slate-500 font-mono mb-6">NISN: -</p>
+            
+            <div id="status-badge" class="px-6 py-2 rounded-full text-xl font-bold tracking-widest mb-8 shadow-sm">
+              STATUS
+            </div>
+            
+            <button id="whatsapp-btn" class="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-semibold py-3 px-4 rounded-xl shadow-lg shadow-green-500/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+              Bagikan Kabar Baik
+            </button>
+            
+            <button id="back-btn" class="mt-4 text-slate-500 hover:text-slate-800 text-sm font-medium transition-colors">
+              &larr; Cek Nomor Lain
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="text-center mt-8 text-slate-500 text-xs">
+      &copy; 2026 Panitia Kelulusan. All rights reserved.
+    </div>
+  </main>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
