@@ -39,7 +39,7 @@ let isFlipped = false;
 
 // 2.5 Countdown Timer Logic
 // Set the target date here:
-const targetDate = new Date('2026-05-01T00:30:00').getTime();
+const targetDate = new Date('2026-05-04T19:30:00').getTime();
 
 function updateCountdown() {
   const now = new Date().getTime();
