@@ -34,12 +34,18 @@ const cdHours = document.getElementById('cd-hours');
 const cdMins = document.getElementById('cd-mins');
 const cdSecs = document.getElementById('cd-secs');
 
+// Audio Elements
+const sfxDrumroll = new Audio('/sound/resources_sfx_drumroll.ogg');
+const sfxCrowd = new Audio('/sound/resources_sfx_crowd.ogg');
+const bgmSuccess = new Audio('/sound/resources_bgm_thefatrat_thefatrat-xenogenesis.ogg');
+bgmSuccess.volume = 0.5; // sedikit pelankan bgm agar sfx crowd terdengar
+
 // State
 let isFlipped = false;
 
 // 2.5 Countdown Timer Logic
 // Set the target date here:
-const targetDate = new Date('2026-05-04T19:30:00').getTime();
+const targetDate = new Date('2026-05-15T10:00:00').getTime();
 
 function updateCountdown() {
   const now = new Date().getTime();
@@ -83,8 +89,13 @@ form.addEventListener('submit', async (e) => {
   showError('');
   setLoading(true);
 
+  // Mainkan SFX Drumroll saat mulai mencari data
+  sfxDrumroll.currentTime = 0;
+  sfxDrumroll.play().catch(e => console.log('Audio autoplay blocked:', e));
+
   try {
     let resultData;
+    const startTime = Date.now();
 
     // Jika Supabase belum dikonfigurasi (Mode Dummy untuk Testing UI)
     if (!supabase) {
@@ -116,6 +127,12 @@ form.addEventListener('submit', async (e) => {
     }
 
     if (resultData && resultData.success) {
+      // Efek dramatis: Pastikan loading minimal 3.5 detik agar drumroll terasa ketegangannya
+      const elapsed = Date.now() - startTime;
+      if (elapsed < 3500) {
+        await new Promise(r => setTimeout(r, 3500 - elapsed));
+      }
+      
       showResult(resultData.data, nisn);
     } else {
       showError(resultData?.message || "Data tidak ditemukan.");
@@ -162,10 +179,22 @@ function showResult(data, nisn) {
     rotationY: 180,
     duration: 1,
     ease: "power3.inOut",
+    onStart: () => {
+      // Hentikan drumroll saat mulai membalik kartu
+      gsap.to(sfxDrumroll, { volume: 0, duration: 0.5, onComplete: () => sfxDrumroll.pause() });
+    },
     onComplete: () => {
       isFlipped = true;
       if (isLulus) {
         triggerConfetti();
+        
+        // Mainkan SFX Sorakan
+        sfxCrowd.currentTime = 0;
+        sfxCrowd.play().catch(e => console.log(e));
+        
+        // Mainkan BGM Xenogenesis khusus dari detik ke-50
+        bgmSuccess.currentTime = 58;
+        bgmSuccess.play().catch(e => console.log(e));
       }
     }
   });
@@ -174,6 +203,12 @@ function showResult(data, nisn) {
 // 5. Back Button (Flip Back)
 backBtn.addEventListener('click', () => {
   if (!isFlipped) return;
+  
+  // Hentikan semua suara saat kembali
+  sfxDrumroll.pause();
+  sfxDrumroll.volume = 1; // reset volume
+  sfxCrowd.pause();
+  bgmSuccess.pause();
   
   gsap.to(cardInner, {
     rotationY: 0,
