@@ -19,6 +19,7 @@ const errorMessage = document.getElementById('error-message');
 const cardInner = document.getElementById('card-inner');
 const backBtn = document.getElementById('back-btn');
 const whatsappBtn = document.getElementById('whatsapp-btn');
+const whiteGlow = document.getElementById('white-glow');
 
 // Result Elements
 const studentName = document.getElementById('student-name');
@@ -45,7 +46,7 @@ let isFlipped = false;
 
 // 2.5 Countdown Timer Logic
 // Set the target date here:
-const targetDate = new Date('2026-05-15T10:00:00').getTime();
+const targetDate = new Date('2026-05-04T19:30:00').getTime();
 
 function updateCountdown() {
   const now = new Date().getTime();
@@ -92,6 +93,21 @@ form.addEventListener('submit', async (e) => {
   // Mainkan SFX Drumroll saat mulai mencari data
   sfxDrumroll.currentTime = 0;
   sfxDrumroll.play().catch(e => console.log('Audio autoplay blocked:', e));
+
+  // Animasi Shrink & Glow (Tersedot)
+  gsap.to(document.body, { backgroundColor: "#000000", duration: 3.5, ease: "power2.in" });
+  gsap.to(cardInner, { 
+    scale: 0.1, 
+    duration: 3.5, 
+    ease: "power2.in" 
+  });
+  // Munculkan dan susutkan si elemen cahaya palsu
+  gsap.to(whiteGlow, {
+    opacity: 1,
+    scale: 0.1,
+    duration: 3.5,
+    ease: "power2.in"
+  });
 
   try {
     let resultData;
@@ -174,16 +190,28 @@ function showResult(data, nisn) {
   const waText = encodeURIComponent(`Halo, saya ${data.name} (NISN: ${nisn}). Status saya dinyatakan: ${data.status.toUpperCase()}. Terima kasih!`);
   whatsappBtn.onclick = () => window.open(`https://wa.me/?text=${waText}`, '_blank');
 
-  // GSAP 3D Flip Animation
-  gsap.to(cardInner, {
+  // GSAP 3D Flip Animation (Pop-out Sequence)
+  // Matikan animasi yang mungkin masih berjalan
+  gsap.killTweensOf(cardInner);
+  gsap.killTweensOf(whiteGlow);
+  gsap.killTweensOf(document.body);
+  
+  // Hentikan drumroll
+  gsap.to(sfxDrumroll, { volume: 0, duration: 0.2, onComplete: () => sfxDrumroll.pause() });
+
+  // Buat Timeline
+  const tl = gsap.timeline();
+  
+  // Flash putih: biarkan cahayanya membesar sekejap lalu menghilang
+  tl.to(whiteGlow, { scale: 1.5, opacity: 0, duration: 0.5, ease: "power2.out" }, 0);
+
+  // Membalik kartu (Flip) dan Meledak (Pop-out) secara bersamaan
+  tl.to(cardInner, {
     rotationY: 180,
-    duration: 1,
-    ease: "power3.inOut",
+    scale: 1.1,
+    duration: 0.8,
+    ease: "back.out(1.5)",
     onStart: () => {
-      // Hentikan drumroll saat mulai membalik kartu
-      gsap.to(sfxDrumroll, { volume: 0, duration: 0.5, onComplete: () => sfxDrumroll.pause() });
-    },
-    onComplete: () => {
       isFlipped = true;
       if (isLulus) {
         triggerConfetti();
@@ -192,12 +220,18 @@ function showResult(data, nisn) {
         sfxCrowd.currentTime = 0;
         sfxCrowd.play().catch(e => console.log(e));
         
-        // Mainkan BGM Xenogenesis khusus dari detik ke-50
+        // Mainkan BGM Xenogenesis khusus dari detik ke-58
         bgmSuccess.currentTime = 58;
         bgmSuccess.play().catch(e => console.log(e));
       }
     }
   });
+  
+  // Turunkan skala kartu ke ukuran wajar (1)
+  tl.to(cardInner, { scale: 1, duration: 0.3, ease: "power1.out" });
+  
+  // Kembalikan background ke normal
+  gsap.to(document.body, { backgroundColor: "#0f172a", duration: 1 });
 }
 
 // 5. Back Button (Flip Back)
@@ -212,6 +246,7 @@ backBtn.addEventListener('click', () => {
   
   gsap.to(cardInner, {
     rotationY: 0,
+    scale: 1,
     duration: 0.8,
     ease: "power3.inOut",
     onComplete: () => {
@@ -220,6 +255,9 @@ backBtn.addEventListener('click', () => {
       nisnInput.focus();
     }
   });
+  
+  gsap.to(whiteGlow, { opacity: 0, scale: 1, duration: 0.5 });
+  gsap.to(document.body, { backgroundColor: "#0f172a", duration: 0.5 });
 });
 
 // 6. Confetti Effect
@@ -264,6 +302,18 @@ function setLoading(isLoading) {
 
 function showError(msg) {
   if (msg) {
+    // Reset animasi jika tadinya sedang loading
+    gsap.killTweensOf(cardInner);
+    gsap.killTweensOf(whiteGlow);
+    gsap.killTweensOf(document.body);
+    
+    gsap.to(cardInner, { scale: 1, duration: 0.5, ease: "power2.out" });
+    gsap.to(whiteGlow, { opacity: 0, duration: 0.5 });
+    gsap.to(document.body, { backgroundColor: "#0f172a", duration: 0.5 });
+    
+    // Stop drumroll
+    gsap.to(sfxDrumroll, { volume: 0, duration: 0.2, onComplete: () => sfxDrumroll.pause() });
+
     errorMessage.textContent = msg;
     errorMessage.classList.remove('hidden');
     // small fade in

@@ -37,10 +37,14 @@
 
     <!-- The 3D Card Container -->
     <div id="card" class="relative w-full h-[450px] md:h-[500px] cursor-default">
-      <div id="card-inner" class="absolute w-full h-full transition-transform duration-1000 transform-style-3d shadow-2xl rounded-2xl">
+      
+      <!-- Glow Element (Fake White Light) -->
+      <div id="white-glow" class="absolute inset-0 bg-white rounded-2xl pointer-events-none opacity-0 z-50 transform scale-100" style="box-shadow: 0 0 100px 30px rgba(255,255,255,0.9);"></div>
+
+      <div id="card-inner" class="absolute w-full h-full transform-style-3d shadow-2xl rounded-2xl">
         
         <!-- FRONT FACE (Input Form) -->
-        <div class="card-face absolute w-full h-full rounded-2xl bg-slate-800/80 backdrop-blur-xl border border-slate-700 p-8 flex flex-col justify-center items-center text-center">
+        <div class="card-face absolute w-full h-full rounded-2xl bg-slate-800 border border-slate-700 p-8 flex flex-col justify-center items-center text-center">
           
           <div class="w-20 h-20 mb-6 flex items-center justify-center">
             <img src="/logo-sekolah.png" alt="Logo Sekolah" class="w-full h-full object-contain drop-shadow-md">
